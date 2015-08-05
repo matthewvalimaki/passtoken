@@ -1,0 +1,139 @@
+<html>
+	<head>
+		<script type="text/javascript" src="passtoken.js"></script>
+		<script type="text/javascript">
+			function generateKeyCards() {
+				passtoken.tokenCard.removeTokenCards();
+				removeCurrentTokens("tokenCard0Tokens");
+				removeCurrentTokens("tokenCard1Tokens");
+				
+				passtoken.tokenCard.addTokenCard(5);
+				passtoken.tokenCard.addTokenCard(5);
+				
+				showTokenCards();
+			}
+			
+			function removeCurrentTokens(container) {
+				var tokenCardElement = document.getElementById(container);
+				
+				while (tokenCardElement.hasChildNodes()) {   
+					tokenCardElement.removeChild(tokenCardElement.firstChild);
+				}
+			}
+			
+			function showTokenCards() {
+				var tokenCards = passtoken.tokenCard.getTokenCards();
+				
+				for (tokenCardKey = 0; tokenCardKey < tokenCards.length; tokenCardKey++) {
+					var tokenCard = passtoken.tokenCard.getTokenCard(tokenCardKey);
+					
+					for (tokenKey = 0; tokenKey < tokenCard.length; tokenKey++) {
+						var tr = document.createElement("tr");
+						var countTd = document.createElement("td");
+						countTd.appendChild(document.createTextNode(tokenKey));
+						tr.appendChild(countTd);
+						
+						var tokenTd = document.createElement("td");
+						tokenTd.id = tokenCardKey + "-" + tokenKey;
+						tokenTd.appendChild(document.createTextNode(tokenCard[tokenKey]));
+						tr.appendChild(tokenTd);
+
+						var tokenCardElement = document.getElementById("tokenCard" + tokenCardKey + "Tokens");
+						tokenCardElement.appendChild(tr);
+					}
+				}
+			}
+			
+			function validateUsername() {
+				var username = document.getElementById("username");
+				
+				// validate username
+				if (username.value != "admin") {
+					alert("username is not admin");
+					return;
+				}
+				
+				document.getElementById("token1Container").style.display = '';
+			}
+			
+			function validateToken1() {
+				var token1 = document.getElementById("token1");
+
+				// validate 1st token
+				if (!passtoken.tokenCard.validateToken(0, token1.value)) {
+					alert("token 1 does not match");
+					return;
+				}
+
+				// invalidate token
+				document.getElementById("0-" + passtoken.tokenCard.getKey(0, token1.value)).style.textDecoration = 'line-through';
+				passtoken.tokenCard.invalidateToken(0, token1.value);
+				
+				document.getElementById("token2Container").style.display = '';
+			}
+			
+			function validateToken2() {
+				var token2 = document.getElementById("token2");
+				
+				// validate 2nd token
+				if (!passtoken.tokenCard.validateToken(1, token2.value)) {
+					alert("token 2 does not match");
+					return;
+				}
+				
+				// invalidate tokens
+				document.getElementById("1-" + passtoken.tokenCard.getKey(1, token2.value)).style.textDecoration = 'line-through';
+				passtoken.tokenCard.invalidateToken(1, token2.value);
+				
+				alert("Authentication OK!");
+			}
+		</script>
+	</head>
+	
+	<body>
+		<h3>Token card 0</h3>
+		<table>
+			<thead>
+				<tr>
+					<th>#</th>
+					<th>Token</th>
+				</tr>
+			</thead>
+			<tbody id="tokenCard0Tokens">
+			</tbody>
+		</table>
+
+		<h3>Token card 1</h3>
+		<table>
+			<thead>
+				<tr>
+					<th>#</th>
+					<th>Token</th>
+				</tr>
+			</thead>
+			<tbody id="tokenCard1Tokens">
+			</tbody>
+		</table>
+		<input type="button" value="Generate Key Cards" onclick="generateKeyCards()">
+		
+		<form>
+			<div id="">
+				<label for="username">Username</label>
+				<input type="text" id="username" name="username">
+				<input type="button" value="Next" onclick="validateUsername()">
+			</div>
+			
+			<div id="token1Container" style="display: none">
+				<label for="token1">Token 1</label>
+				<input type="text" id="token1" name="token1">
+				<input type="button" value="Next" onclick="validateToken1()">
+			</div>
+			
+			<div id="token2Container" style="display: none">
+				<label for="token2">Token 2</label>
+				<input type="text" id="token2" name="token2">
+				<input type="button" value="Login" onclick="validateToken2()">
+			</div>
+		</form>
+	</body>
+</html>
